@@ -1,0 +1,27 @@
+[Unit]
+Description=Bind actions to the Xiaomi/Redmi AI key (xiaomi-key daemon)
+Documentation=https://github.com/myml/xiaomi-ai-key-linux
+# The actions are GUI commands (KRunner, spectacle, konsole...), so the
+# graphical session environment has to exist before the daemon starts.
+After=graphical-session.target
+PartOf=graphical-session.target
+# Do not restart-storm when the device is missing (see the retry loop in the
+# daemon). Both settings belong in [Unit] on modern systemd.
+StartLimitIntervalSec=60
+StartLimitBurst=10
+# Deliberately no BindsTo=dev-input-xiaomi\x2dkey.device: a BindsTo failure
+# would stop the service and defeat Restart=always. The daemon reconnects to
+# the device itself, which also survives kernel updates.
+
+[Service]
+Type=simple
+# %h expands to the user's home directory inside unit files (%h is not expanded
+# by systemd-run). scripts/install.sh rewrites this line when --prefix is used.
+ExecStart=%h/.local/bin/xiaomi-key-daemon.py
+# `systemctl --user reload xiaomi-key` re-reads action.conf without a restart.
+ExecReload=/bin/kill -USR1 $MAINPID
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

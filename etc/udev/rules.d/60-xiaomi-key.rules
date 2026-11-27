@@ -1,0 +1,25 @@
+# Give the logged-in user read access to the Xiaomi/Redmi "WMI keys" device so
+# the xiaomi-key daemon can read KEY_ASSISTANT (583) without root.
+#
+# Input event nodes are root:input 0600 by default: an unprivileged process
+# gets EACCES. `TAG+="uaccess"` makes systemd-logind add an ACL for the
+# currently active local session (log out / back in for it to appear).
+#
+# Install to: /etc/udev/rules.d/60-xiaomi-key.rules
+# (scripts/install.sh does this for you.)
+
+ACTION=="remove", GOTO="xiaomi_key_end"
+SUBSYSTEM!="input", GOTO="xiaomi_key_end"
+KERNEL!="event*", GOTO="xiaomi_key_end"
+
+# Any WMI hotkey device, i.e. the firmware hotkey block on Xiaomi/Redmi
+# laptops. It only carries hotkeys, so the ACL cannot be used to log typing.
+# The daemon additionally filters by key capability, and only one such device
+# exists on these machines. Narrow the glob if you want to be stricter, e.g.
+#   ATTRS{name}=="Redmi*book WMI keys"
+ATTRS{name}=="*WMI keys", \
+    TAG+="uaccess", \
+    ENV{XIAOMI_KEY}="1", \
+    SYMLINK+="input/xiaomi-key"
+
+LABEL="xiaomi_key_end"

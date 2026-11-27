@@ -1,0 +1,51 @@
+name: Bug report
+description: The daemon, a script, or the documentation misbehaves.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: run `bin/xiaomi-key-daemon.py --check` and
+        `journalctl --user -u xiaomi-key -b --no-pager | tail -50`.
+        Permission problems and "the key remap broke the long press" are
+        covered by docs/troubleshooting.md.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: What you expected, what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. config with SHORT_PRESS=...
+        2. press the key twice
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: check
+    attributes:
+      label: Output of `bin/xiaomi-key-daemon.py --check`
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `bin/xiaomi-key-daemon.py --version`.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Distribution, kernel, desktop/compositor
+      placeholder: Fedora 44, 7.2.6, KDE Plasma 6.7.5 on Wayland

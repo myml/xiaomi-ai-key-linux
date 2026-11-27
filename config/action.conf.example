@@ -1,0 +1,78 @@
+# xiaomi-key action configuration
+#
+# Copy to ~/.config/xiaomi-key/action.conf (scripts/install.sh does that) and
+# edit. One KEY=VALUE per line; '#' starts a comment line. Values are taken
+# verbatim, so inline comments are NOT stripped (commands may contain '#').
+# After editing: systemctl --user restart xiaomi-key
+#              (or `systemctl --user reload xiaomi-key`, config only)
+
+# --- device ---------------------------------------------------------------
+# Optional regular expression on the input device name. Empty (the default)
+# means "any device that reports one of the KEY_CODES below", which is what
+# you want on most machines.
+# DEVICE_NAME=(Redmi ?book|Redmi) WMI keys
+
+# Key codes to listen for. 583 = KEY_ASSISTANT, which is what the Xiaomi /
+# Redmi firmware reports. If you remapped the key to F19 with
+# scripts/remap-key.sh, use 189 instead.
+KEY_CODES=583
+
+# --- actions --------------------------------------------------------------
+# Three slots, fill whichever you need, leave the rest empty:
+#
+#   PRESS        fires the instant the key goes down (zero latency)
+#   SHORT_PRESS  fires on release, if PRESS/LONG_PRESS did not handle it
+#   LONG_PRESS   fires once the key is held longer than LONG_PRESS_MS
+#
+# Combinations (all covered by tests/test_state_machine.py):
+#   PRESS only             press  -> PRESS
+#   SHORT_PRESS only       tap    -> SHORT_PRESS
+#   PRESS + LONG_PRESS     press  -> PRESS, then LONG_PRESS while held
+#   SHORT_PRESS + LONG     tap    -> SHORT_PRESS, hold -> LONG_PRESS
+#   PRESS + SHORT_PRESS    SHORT_PRESS never fires (PRESS consumed the press)
+
+# ---- press (empty = disabled) --------------------------------------------
+# PRESS=
+
+# ---- short press (empty = do nothing) ------------------------------------
+# Default: open KRunner
+SHORT_PRESS=gdbus call --session --dest org.kde.krunner --object-path /App --method org.kde.krunner.App.toggleDisplay
+
+# ---- long press (empty = disabled) ---------------------------------------
+LONG_PRESS=konsole
+
+# Long press threshold in milliseconds (minimum 50).
+LONG_PRESS_MS=600
+
+# --- execution ------------------------------------------------------------
+# Shell used to run actions. Empty (default) = /bin/sh via shell=True.
+# SHELL=/bin/bash
+
+# Log the action instead of running it. Handy for testing a new config.
+# DRY_RUN=0
+
+# Desktop notification shown whenever an action fires (empty = silent).
+# FEEDBACK=xiaomi-key
+
+# debug | info | warning | error
+# LOG_LEVEL=info
+
+# ==========================================================================
+# More actions (all verified on KDE Plasma 6 / Wayland)
+#
+#   KRunner                gdbus call --session --dest org.kde.krunner --object-path /App --method org.kde.krunner.App.toggleDisplay
+#   Screenshot region      spectacle -r -b -c -n
+#   Screenshot full screen spectacle -f -b -n
+#   Terminal               konsole
+#   File manager           dolphin
+#   Clipboard popup        gdbus call --session --dest org.kde.klipper --object-path /klipper --method org.kde.klipper.klipper.showKlipperPopupMenu
+#   Lock screen            loginctl lock-session
+#   Toggle mute            wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+#   Volume -5%             wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+#   System monitor         plasma-systemmonitor
+#   Read clipboard aloud   espeak-ng "$(wl-paste)"
+#   Log out                gdbus call --session --dest org.kde.Shutdown --object-path /Shutdown --method org.kde.Shutdown.logout
+#   Open a URL             xdg-open https://www.mi.com/
+#
+# Avoid qdbus/qdbus6 on Fedora (not installed); use gdbus. Commands run in a
+# shell, so pipes, $(...) and && work.

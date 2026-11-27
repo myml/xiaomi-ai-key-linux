@@ -1,0 +1,60 @@
+name: Hardware report
+description: The key does nothing, or your model is not in the compatibility table.
+title: "[hardware] <laptop model>"
+labels: ["hardware"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing. The three commands below turn a vague "it does not
+        work" into something that can actually be fixed.
+  - type: input
+    id: model
+    attributes:
+      label: Laptop model
+      placeholder: Redmi Book 16 2024 (i5-12450H)
+    validations:
+      required: true
+  - type: input
+    id: distro
+    attributes:
+      label: Distribution, kernel, desktop
+      placeholder: Fedora 44, kernel 7.2.6, KDE Plasma 6.7.5 Wayland
+    validations:
+      required: true
+  - type: textarea
+    id: check
+    attributes:
+      label: Output of `bin/xiaomi-key-daemon.py --check`
+      render: text
+      placeholder: |
+        xiaomi-key 1.0.0 --check
+        [ ok ] python 3.14.10 (/usr/bin/python3)
+        ...
+    validations:
+      required: true
+  - type: textarea
+    id: list
+    attributes:
+      label: Output of `bin/xiaomi-key-daemon.py --list`
+      description: Paste the block for the device that looks like the hotkey device.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: test
+    attributes:
+      label: Output of `bin/xiaomi-key-daemon.py --test` while pressing the key
+      description: If nothing appears, say so — that means the event never reaches the kernel.
+      render: text
+  - type: input
+    id: device-name
+    attributes:
+      label: Device name from sysfs
+      description: Output of `cat /sys/class/input/by-id/*/device/name` or the matching line in `--list`.
+      placeholder: Redmibook WMI keys
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: BIOS notes, what you already tried, `journalctl --user -u xiaomi-key -b` excerpts.

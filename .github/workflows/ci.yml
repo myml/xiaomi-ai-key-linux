@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: unit tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -t . -v
+
+  lint:
+    name: shellcheck + byte-compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Shell syntax and shellcheck
+        run: |
+          for script in scripts/*.sh; do
+            echo "== $script"
+            bash -n "$script"
+            shellcheck -x "$script"
+          done
+      - name: Byte-compile
+        run: python -m compileall -q bin tests
+
+  packaging:
+    name: shipped files are consistent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Packaging tests
+        run: python -m unittest tests.test_packaging -v
+      - name: Makefile builds a tarball
+        run: make dist && tar tzf dist/*.tar.gz | head -20

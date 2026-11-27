@@ -1,0 +1,39 @@
+# Remap the Xiaomi/Redmi AI key from KEY_ASSISTANT (583) to F19 (189).
+#
+# Why: KDE/KWin translate keysyms with QXkbCommon::keysymToQtKey(), and Qt's
+# table (src/gui/platform/unix/qxkbcommon.cpp) has no entry for XF86Assistant;
+# Qt::Key has no Key_Assistant either. The key therefore becomes
+# Qt::Key_unknown(0) and the shortcut recorder shows nothing. F19 is understood
+# by Qt, so after remapping the key can be bound in System Settings.
+#
+# Side effect: long-press support is lost (see below), so this is an
+# alternative to the daemon, not a companion. Pick one:
+#   daemon (recommended, long press works)  -> bin/xiaomi-key-daemon.py
+#   remap + desktop shortcut                -> this file
+#
+# Why F19:
+#   F19 -> keysym F19       -> Qt shows "F19"        (clear label)
+#   F18 -> keysym XF86Launch9 -> Qt shows "Launch (9)"
+#   F20/F21/F22 are Microphone Mute / Touchpad Toggle / Touchpad On in Qt
+#   The redmi-wmi driver itself only uses F13..F17.
+#
+# Why two scancodes:
+#   redmi_wmi reports 0x11801 for press and 0x11901 for release (payload
+#   bit 8). Its "AI key quirk" only kicks in while the key code is still
+#   KEY_ASSISTANT: once remapped, both scancodes emit their own press+auto
+#   release, so a single physical press would fire twice. The release
+#   scancode must therefore be dropped.
+#
+# Why "reserved" and not "0":
+#   systemd's key name table is generated from linux/input.h, where the name
+#   "0" means KEY_0 (the digit zero, 11), not KEY_RESERVED (0). Writing =0
+#   turns the release into a typed "0". Upstream 60-keyboard.hwdb always uses
+#   `reserved` to disable a key.
+#
+# Install to: /etc/udev/hwdb.d/70-xiaomi-key-remap.hwdb
+# scripts/remap-key.sh installs this and rewrites the match line with the
+# device name it detects on your machine.
+
+evdev:name:Redmi*book WMI keys:*
+ KEYBOARD_KEY_11801=f19
+ KEYBOARD_KEY_11901=reserved

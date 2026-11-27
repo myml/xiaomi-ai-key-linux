@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / how do I...
+    url: https://github.com/myml/xiaomi-ai-key-linux/discussions
+    about: Ask in Discussions instead of opening an issue.
+  - name: Troubleshooting guide
+    url: https://github.com/myml/xiaomi-ai-key-linux/blob/main/docs/troubleshooting.md
+    about: Permission errors, double triggers, silent keys, and the remap conflict.
