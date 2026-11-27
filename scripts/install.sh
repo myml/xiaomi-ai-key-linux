@@ -23,7 +23,6 @@ FORCE_CONFIG=0
 DRY_RUN=0
 
 UDEV_SRC="$REPO_ROOT/etc/udev/rules.d/60-xiaomi-key.rules"
-HWDB_SRC="$REPO_ROOT/etc/udev/hwdb.d/70-xiaomi-key-remap.hwdb"
 UNIT_SRC="$REPO_ROOT/etc/systemd/user/xiaomi-key.service"
 DAEMON_SRC="$REPO_ROOT/bin/xiaomi-key-daemon.py"
 CONF_SRC="$REPO_ROOT/config/action.conf.example"

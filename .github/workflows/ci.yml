@@ -11,11 +11,19 @@ permissions:
 jobs:
   test:
     name: unit tests (Python ${{ matrix.python }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.12", "3.13"]
+        # 3.9 is still what RHEL 9 / CentOS Stream 9 ship, but the current
+        # ubuntu-latest image (26.04) has no 3.9 build, hence the pin.
+        include:
+          - python: "3.9"
+            os: ubuntu-22.04
+          - python: "3.12"
+            os: ubuntu-latest
+          - python: "3.13"
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
